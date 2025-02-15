@@ -1,54 +1,69 @@
-// Hover Effects for Special Game Blocks
-const specialGameCards = document.querySelectorAll('.game-card.special');
+// Open Category Page Function
+function openCategory(category) {
+    window.location.href = category + ".html"; // Redirect to category page
+}
 
-specialGameCards.forEach(card => {
-  card.addEventListener('mouseenter', () => {
-    card.style.transform = 'scale(1.05)';
-    card.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.5)';
-  });
+// Particle Background Effect
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
 
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = 'scale(1)';
-    card.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
-  });
-});
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-// Click Animations for Play Buttons
-const playButtons = document.querySelectorAll('.game-card.special .play-button');
+const particlesArray = [];
+const numParticles = 100;
 
-playButtons.forEach(button => {
-  button.addEventListener('click', () => {
-    button.style.transform = 'scale(0.95)';
-    setTimeout(() => {
-      button.style.transform = 'scale(1)';
-    }, 200);
-  });
-});
-
-// Dynamic Background Interaction (from earlier)
-document.addEventListener('mousemove', (e) => {
-  const x = e.clientX / window.innerWidth;
-  const y = e.clientY / window.innerHeight;
-  const color1 = `hsl(${x * 360}, 70%, 50%)`;
-  const color2 = `hsl(${y * 360}, 70%, 50%)`;
-  document.body.style.background = `linear-gradient(45deg, ${color1}, ${color2})`;
-});
-
-// Scroll Animations for Special Game Blocks
-const specialGameObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.style.opacity = '1';
-      entry.target.style.transform = 'translateY(0)';
-    } else {
-      entry.target.style.opacity = '0';
-      entry.target.style.transform = 'translateY(50px)';
+// Particle Class
+class Particle {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 5 + 1;
+        this.speedX = Math.random() * 3 - 1.5;
+        this.speedY = Math.random() * 3 - 1.5;
+        this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
     }
-  });
-}, {
-  threshold: 0.5, // Trigger animation when 50% of the block is visible
+
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+    }
+}
+
+// Initialize Particles
+function initParticles() {
+    for (let i = 0; i < numParticles; i++) {
+        particlesArray.push(new Particle());
+    }
+}
+
+// Animate Particles
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particlesArray.forEach(particle => {
+        particle.update();
+        particle.draw();
+    });
+    requestAnimationFrame(animateParticles);
+}
+
+// Resize Event
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 });
 
-specialGameCards.forEach(card => {
-  specialGameObserver.observe(card);
-});
+// Start Animation
+initParticles();
+animateParticles();
